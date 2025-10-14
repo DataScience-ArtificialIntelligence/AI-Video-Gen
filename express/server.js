@@ -90,7 +90,6 @@ Return ONLY valid JSON without markdown code blocks or backticks:
       const text = data.candidates[0]?.content?.parts?.[0]?.text;
 
       if (text) {
-        // ✅ Clean AI response safely
         let cleaned = text
           .replace(/```json/g, "")
           .replace(/```/g, "")
@@ -147,4 +146,4 @@ Return ONLY valid JSON without markdown code blocks or backticks:
   }
 });
 
-app.listen(5000, () => console.log("✅ Backend running on http://localhost:5000"));
+app.listen(5000, () => console.log("Backend running on http://localhost:5000"));
