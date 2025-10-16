@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { generateSlides } from "../utils/api";
 
@@ -7,26 +8,41 @@ export default function Home({ onSlidesReady }) {
   const [contentStyle, setContentStyle] = useState("brief");
   const [includeImages, setIncludeImages] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleGenerate = async () => {
-  if (!topic.trim()) {
-    alert("Please enter a topic");
-    return;
-  }
-  setLoading(true);
-  try {
-    const slides = await generateSlides({ 
-      topic, 
-      slideCount, 
-      contentStyle, 
-      includeImages  
-    });
-    onSlidesReady(slides);
-  } catch (error) {
-    alert("Error generating slides. Please try again.");
-  }
-  setLoading(false);
-};
+    if (!topic.trim()) {
+      setError("Please enter a topic");
+      return;
+    }
+    
+    setLoading(true);
+    setError("");
+    
+    try {
+      const slides = await generateSlides({ 
+        topic, 
+        slideCount, 
+        contentStyle, 
+        includeImages  
+      });
+      
+      if (!slides || slides.length === 0) {
+        throw new Error("No slides generated");
+      }
+      
+      onSlidesReady(slides);
+    } catch (error) {
+      console.error("Generation error:", error);
+      setError(
+        error.response?.data?.details || 
+        error.message || 
+        "Error generating slides. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
@@ -39,6 +55,13 @@ export default function Home({ onSlidesReady }) {
         </div>
 
         <div className="space-y-6">
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              <p className="text-sm font-medium">{error}</p>
+            </div>
+          )}
+
           {/* Topic Input */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -46,9 +69,18 @@ export default function Home({ onSlidesReady }) {
             </label>
             <input
               value={topic}
-              onChange={(e) => setTopic(e.target.value)}
+              onChange={(e) => {
+                setTopic(e.target.value);
+                setError("");
+              }}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && !loading) {
+                  handleGenerate();
+                }
+              }}
               placeholder="e.g., The Future of AI in Presentations"
               className="w-full border-2 border-gray-300 rounded-lg p-4 text-lg focus:border-blue-500 focus:outline-none transition-colors"
+              disabled={loading}
             />
           </div>
 
@@ -64,6 +96,7 @@ export default function Home({ onSlidesReady }) {
               value={slideCount}
               onChange={(e) => setSlideCount(Number(e.target.value))}
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+              disabled={loading}
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
               <span>3</span>
@@ -79,11 +112,12 @@ export default function Home({ onSlidesReady }) {
             <div className="grid grid-cols-2 gap-4">
               <button
                 onClick={() => setContentStyle("brief")}
+                disabled={loading}
                 className={`p-4 rounded-lg border-2 transition-all ${
                   contentStyle === "brief"
                     ? "border-blue-600 bg-blue-50 text-blue-700"
                     : "border-gray-300 hover:border-gray-400"
-                }`}
+                } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 <div className="font-semibold">Brief Points</div>
                 <div className="text-xs text-gray-600 mt-1">
@@ -92,11 +126,12 @@ export default function Home({ onSlidesReady }) {
               </button>
               <button
                 onClick={() => setContentStyle("detailed")}
+                disabled={loading}
                 className={`p-4 rounded-lg border-2 transition-all ${
                   contentStyle === "detailed"
                     ? "border-blue-600 bg-blue-50 text-blue-700"
                     : "border-gray-300 hover:border-gray-400"
-                }`}
+                } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 <div className="font-semibold">Detailed</div>
                 <div className="text-xs text-gray-600 mt-1">
@@ -113,7 +148,8 @@ export default function Home({ onSlidesReady }) {
                 type="checkbox"
                 checked={includeImages}
                 onChange={(e) => setIncludeImages(e.target.checked)}
-                className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                disabled={loading}
+                className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
               />
               <div className="ml-3">
                 <span className="text-sm font-semibold text-gray-700">
