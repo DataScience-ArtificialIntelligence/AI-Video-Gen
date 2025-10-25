@@ -184,7 +184,7 @@ class VoiceGenerator:
     
     def combine_slide_audios(self, slide_audio_paths: dict, topic: str) -> str:
         """Combine individual slide audio files into one complete audio"""
-        from moviepy.editor import AudioFileClip, concatenate_audioclips
+        from moviepy import AudioFileClip, concatenate_audioclips
         from pathlib import Path
         
         # Load all audio clips in order

@@ -50,7 +50,12 @@ async def generate_presentation(request: GenerateRequest, background_tasks: Back
     
     try:
         topic = request.topic
-        generation_id = topic[:30].replace(' ', '_')
+        
+        # Sanitize topic for file paths
+        topic_clean = topic[:30].replace(' ', '_').replace(':', '').replace('/', '_').replace('\\', '_')
+        topic_clean = topic_clean.replace('"', '').replace("'", '').replace('?', '').replace('!', '')
+        
+        generation_id = topic_clean
         
         # Initialize status
         generation_status[generation_id] = {
@@ -103,7 +108,7 @@ async def generate_presentation(request: GenerateRequest, background_tasks: Back
                 slide_audio_paths[slide_num] = audio_path
                 
                 # Get actual audio duration
-                from moviepy.editor import AudioFileClip
+                from moviepy import AudioFileClip
                 audio_clip = AudioFileClip(audio_path)
                 actual_durations[slide_num] = audio_clip.duration
                 audio_clip.close()
@@ -162,17 +167,34 @@ async def generate_presentation(request: GenerateRequest, background_tasks: Back
                     animation_code = manim_gen.generate_animation_code(slide, duration)
                     code_path = manim_gen.save_animation_code(animation_code, slide_num, topic)
                     
-                    # Render animation
+                    # Render animation at FULL RESOLUTION first (no constraints)
+                    # Sanitize topic for filename
+                    topic_clean = topic[:20].replace(' ', '_').replace(':', '').replace('/', '_')
                     video_path = video_renderer.render_manim_animation(
                         code_path, 
-                        f"{topic[:20].replace(' ', '_')}_slide_{slide_num}"
+                        f"{topic_clean}_slide_{slide_num}"
                     )
                     animation_paths[slide_num] = video_path
-                    slide_paths[slide_num] = video_path
-                    print(f"Generated animation for slide {slide_num} (duration: {duration}s)")
+                    
+                    # Create base slide with animation placeholder
+                    base_slide = slide_renderer.create_slide_with_animation_placeholder(
+                        slide['title'],
+                        slide['content_text'],
+                        slide_num,
+                        topic
+                    )
+                    
+                    # Store both for later compositing
+                    slide_paths[slide_num] = {
+                        'type': 'animation_composite',
+                        'base_slide': base_slide,
+                        'animation': video_path
+                    }
+                    print(f"Generated animation for slide {slide_num} (duration: {duration}s) - will composite into slide")
                     
                 except Exception as e:
                     print(f"Error generating animation for slide {slide_num}: {e}")
+                    traceback.print_exc()
                     # Fallback to text slide
                     text_slide = slide_renderer.create_text_slide(
                         slide['title'],
