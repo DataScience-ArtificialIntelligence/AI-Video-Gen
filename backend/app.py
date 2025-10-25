@@ -1,11 +1,13 @@
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 from typing import Optional
 import traceback
 import json
 from pathlib import Path
+import asyncio
+from datetime import datetime
 
 from generators.content_generator import ContentGenerator
 from generators.script_generator import ScriptGenerator
@@ -44,6 +46,60 @@ class GenerateResponse(BaseModel):
 # Store generation status
 generation_status = {}
 
+def update_progress(generation_id: str, progress: int, status: str, message: str):
+    """Update progress and print to terminal"""
+    timestamp = datetime.now().strftime("%H:%M:%S")
+    generation_status[generation_id] = {
+        "status": status,
+        "progress": progress,
+        "message": message,
+        "timestamp": timestamp
+    }
+    # Simple terminal output without progress bar
+    print(f"[{timestamp}] {message}")
+
+
+@app.get("/api/progress/{generation_id}")
+async def get_progress(generation_id: str):
+    """SSE endpoint for real-time progress updates"""
+    async def event_generator():
+        print(f"[SSE] Client connected for generation_id: {generation_id}")
+        last_message = None
+        retry_count = 0
+        max_retries = 600  # 5 minutes max (600 * 0.5s)
+        
+        while retry_count < max_retries:
+            if generation_id in generation_status:
+                status_data = generation_status[generation_id]
+                
+                # Always send updates (even if same - for heartbeat)
+                current_message = status_data["message"]
+                if current_message != last_message or retry_count % 4 == 0:  # Send heartbeat every 2s
+                    last_message = current_message
+                    data = json.dumps(status_data)
+                    print(f"[SSE] 📤 Sending: {status_data['message'][:50]}")
+                    yield f"data: {data}\n\n"
+                
+                # Stop if completed or failed
+                if status_data["status"] in ["completed", "error"]:
+                    print(f"[SSE] 🏁 Closing connection for {generation_id}")
+                    break
+            
+            await asyncio.sleep(0.5)
+            retry_count += 1
+        
+        print(f"[SSE] ❌ Timeout or closed for {generation_id}")
+    
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache, no-transform",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",  # Disable nginx buffering
+        }
+    )
+
 @app.post("/api/generate")
 async def generate_presentation(request: GenerateRequest, background_tasks: BackgroundTasks):
     """Main endpoint to generate presentation video"""
@@ -58,46 +114,37 @@ async def generate_presentation(request: GenerateRequest, background_tasks: Back
         generation_id = topic_clean
         
         # Initialize status
-        generation_status[generation_id] = {
-            "status": "started",
-            "progress": 0,
-            "message": "Starting generation..."
-        }
+        update_progress(generation_id, 0, "started", "🚀 Starting generation...")
         
         # Step 1: Generate PPT content structure
-        generation_status[generation_id] = {
-            "status": "generating_content",
-            "progress": 10,
-            "message": "Generating presentation content..."
-        }
+        update_progress(generation_id, 10, "generating_content", "📝 Generating presentation content...")
         
         content_gen = ContentGenerator()
         content_data = content_gen.generate_content(topic, request.num_slides)
         
         # Step 2: Generate narration scripts with timestamps
-        generation_status[generation_id] = {
-            "status": "generating_scripts",
-            "progress": 25,
-            "message": "Generating voice scripts..."
-        }
+        update_progress(generation_id, 20, "generating_scripts", "📜 Generating voice scripts...")
         
         script_gen = ScriptGenerator()
         script_data = script_gen.generate_scripts(content_data, request.language, request.tone)
         
         # Step 3: Generate voice audio PER SLIDE and get actual durations
-        generation_status[generation_id] = {
-            "status": "generating_audio",
-            "progress": 40,
-            "message": "Generating voice narration per slide..."
-        }
+        update_progress(generation_id, 30, "generating_audio", "🎤 Generating voice narration per slide...")
         
         voice_gen = VoiceGenerator()
         slide_audio_paths = {}
         actual_durations = {}
+        total_slides = len(script_data['slide_scripts'])
         
         # Generate audio for each slide separately
-        for slide_script in script_data['slide_scripts']:
+        for idx, slide_script in enumerate(script_data['slide_scripts'], 1):
             slide_num = slide_script['slide_number']
+            
+            # Update progress for each slide
+            audio_progress = 30 + int((idx / total_slides) * 15)  # 30% to 45%
+            update_progress(generation_id, audio_progress, "generating_audio", 
+                          f"🎤 Generating audio for slide {idx}/{total_slides}...")
+            
             try:
                 audio_path = voice_gen.generate_voice_for_slide(
                     slide_script['narration_text'],
@@ -131,14 +178,11 @@ async def generate_presentation(request: GenerateRequest, background_tasks: Back
         script_data['total_duration'] = current_time
         
         # Combine all slide audios into one file
+        update_progress(generation_id, 48, "combining_audio", "🎵 Combining audio tracks...")
         audio_path = voice_gen.combine_slide_audios(slide_audio_paths, topic)
         
         # Step 4: Generate slide visuals (text slides, animations, or images)
-        generation_status[generation_id] = {
-            "status": "generating_media",
-            "progress": 55,
-            "message": "Generating slide visuals..."
-        }
+        update_progress(generation_id, 50, "generating_media", "🎨 Generating slide visuals...")
         
         manim_gen = ManimGenerator()
         image_fetcher = ImageFetcher()
@@ -149,11 +193,17 @@ async def generate_presentation(request: GenerateRequest, background_tasks: Back
         animation_paths = {}
         image_paths = {}
         
-        for slide in content_data['slides']:
+        total_slides = len(content_data['slides'])
+        for idx, slide in enumerate(content_data['slides'], 1):
             slide_num = slide['slide_number']
+            
+            # Update progress for each slide
+            visual_progress = 50 + int((idx / total_slides) * 30)  # 50% to 80%
             
             # Priority 1: Animation (5-10 seconds dynamic content)
             if slide.get('needs_animation'):
+                update_progress(generation_id, visual_progress, "generating_animation",
+                              f"🎬 Creating animation for slide {idx}/{total_slides}...")
                 try:
                     # Get slide duration from script (voice narration duration)
                     slide_script = next(
@@ -206,6 +256,8 @@ async def generate_presentation(request: GenerateRequest, background_tasks: Back
             
             # Priority 2: Image (static visual support)
             elif slide.get('needs_image') and slide.get('image_keyword'):
+                update_progress(generation_id, visual_progress, "fetching_image",
+                              f"🖼️ Fetching image for slide {idx}/{total_slides}...")
                 try:
                     image_path = image_fetcher.fetch_image(slide['image_keyword'], slide_num, topic)
                     if image_path:
@@ -233,6 +285,8 @@ async def generate_presentation(request: GenerateRequest, background_tasks: Back
             
             # Priority 3: Text-only slide (most common)
             else:
+                update_progress(generation_id, visual_progress, "generating_slide",
+                              f"📄 Creating text slide {idx}/{total_slides}...")
                 text_slide = slide_renderer.create_text_slide(
                     slide['title'],
                     slide['content_text'],
@@ -243,11 +297,7 @@ async def generate_presentation(request: GenerateRequest, background_tasks: Back
                 print(f"Generated text slide for slide {slide_num}")
         
         # Step 5: Compose final video
-        generation_status[generation_id] = {
-            "status": "composing_video",
-            "progress": 85,
-            "message": "Composing final video..."
-        }
+        update_progress(generation_id, 85, "composing_video", "🎞️ Composing final video with audio...")
         
         composer = VideoComposer()
         final_video_path = composer.compose_final_video(
@@ -258,12 +308,7 @@ async def generate_presentation(request: GenerateRequest, background_tasks: Back
         )
         
         # Complete
-        generation_status[generation_id] = {
-            "status": "completed",
-            "progress": 100,
-            "message": "Video generation complete!",
-            "video_path": final_video_path
-        }
+        update_progress(generation_id, 100, "completed", "✅ Video generation complete!")
         
         return GenerateResponse(
             status="success",
@@ -277,12 +322,7 @@ async def generate_presentation(request: GenerateRequest, background_tasks: Back
         error_msg = f"Error: {str(e)}"
         print(f"Full error:\n{traceback.format_exc()}")
         
-        if generation_id in generation_status:
-            generation_status[generation_id] = {
-                "status": "error",
-                "progress": 0,
-                "message": error_msg
-            }
+        update_progress(generation_id, 0, "error", f"❌ {error_msg}")
         
         raise HTTPException(status_code=500, detail=error_msg)
 

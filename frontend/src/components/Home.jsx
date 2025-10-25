@@ -8,8 +8,7 @@ export default function Home({ onGenerationComplete }) {
   const [tone, setTone] = useState("formal");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [progress, setProgress] = useState(0);
-  const [statusMessage, setStatusMessage] = useState("");
+  const [currentStatus, setCurrentStatus] = useState("");
 
   const handleGenerate = async () => {
     if (!topic.trim()) {
@@ -19,20 +18,69 @@ export default function Home({ onGenerationComplete }) {
 
     setLoading(true);
     setError("");
-    setProgress(0);
-    setStatusMessage("Starting generation...");
+    setCurrentStatus("Starting generation...");
+
+    // Create generation ID (same sanitization as backend)
+    const generationId = topic.slice(0, 30)
+      .replace(/ /g, '_')
+      .replace(/[:"'/?!]/g, '');
+
+    let eventSource = null;
 
     try {
-      const response = await axios.post("http://localhost:8000/api/generate", {
+      // Start the generation request (non-blocking)
+      const generatePromise = axios.post("http://localhost:8000/api/generate", {
         topic,
         num_slides: numSlides,
         language,
         tone
       });
 
+      // Wait 500ms for backend to create status, then start SSE
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      console.log('🔌 Starting SSE for generation_id:', generationId);
+
+      // Start SSE connection for status updates
+      eventSource = new EventSource(`http://localhost:8000/api/progress/${generationId}`);
+      
+      eventSource.onopen = () => {
+        console.log('✅ SSE connected!');
+      };
+
+      eventSource.onmessage = (event) => {
+        console.log('📨 SSE raw data:', event.data);
+        
+        try {
+          const data = JSON.parse(event.data);
+          console.log('📊 Parsed:', data);
+          console.log('🔄 Setting status:', data.message);
+          
+          // Update status
+          setCurrentStatus(data.message);
+          
+          // Close connection when complete or error
+          if (data.status === 'completed' || data.status === 'error') {
+            console.log('🏁 Closing SSE');
+            eventSource.close();
+          }
+        } catch (e) {
+          console.error('❌ Parse error:', e, event.data);
+        }
+      };
+
+      eventSource.onerror = (error) => {
+        console.error('❌ SSE error:', error);
+        if (eventSource) {
+          eventSource.close();
+        }
+      };
+
+      // Wait for generation to complete
+      const response = await generatePromise;
+
       if (response.data.status === "success") {
-        setProgress(100);
-        setStatusMessage("Video generated successfully!");
+        setCurrentStatus("✅ Video generated successfully!");
 
         setTimeout(() => {
           onGenerationComplete({
@@ -49,8 +97,12 @@ export default function Home({ onGenerationComplete }) {
         error.message ||
         "Error generating video. Please try again."
       );
+      setCurrentStatus("");
     } finally {
       setLoading(false);
+      if (eventSource) {
+        eventSource.close();
+      }
     }
   };
 
@@ -73,17 +125,16 @@ export default function Home({ onGenerationComplete }) {
             </div>
           )}
 
-          {statusMessage && !error && (
-            <div className="bg-blue-50 border-2 border-blue-200 text-blue-700 px-4 py-3 rounded-lg">
-              <p className="text-sm font-medium">ℹ️ {statusMessage}</p>
-              {loading && (
-                <div className="mt-2 w-full bg-blue-200 rounded-full h-2">
-                  <div
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${progress}%` }}
-                  ></div>
-                </div>
-              )}
+          {currentStatus && !error && (
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-6 shadow-2xl">
+              <div>
+                <p className="text-sm font-semibold text-indigo-100 uppercase tracking-wide mb-2">
+                  Current Status
+                </p>
+                <p className="text-2xl font-bold text-white">
+                  {currentStatus}
+                </p>
+              </div>
             </div>
           )}
 
@@ -166,29 +217,7 @@ export default function Home({ onGenerationComplete }) {
             disabled={loading || !topic.trim()}
             className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
           >
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    fill="none"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                Generating Video...
-              </span>
-            ) : (
-              "🎬 Generate Video Presentation"
-            )}
+            {loading ? "⏳ Processing..." : "🎬 Generate Video Presentation"}
           </button>
         </div>
       </div>
