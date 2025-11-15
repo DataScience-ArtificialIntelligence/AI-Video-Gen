@@ -1,6 +1,10 @@
 backend/__pycache__/
 backend/generators/__pycache__/
 backend/utils/__pycache__/
+
 .env
 myenv/
 outputs/
+
+venv
+venv/

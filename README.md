@@ -1,203 +1,422 @@
-# Combined Video Presentation Generator
+<div align="center">
 
-An AI-powered system that generates educational video presentations with dynamic slides, manim animations, images, and voice narration.
+# 🎬 AI Video Presentation Generator
 
-## Features
+**Transform any topic into an engaging video presentation with AI-powered content, narration, and visuals.**
 
-- 🎨 **Dynamic Manim Animations**: Automatically generates animations for mathematical, physics, and scientific concepts (used sparingly for maximum impact)
-- 🖼️ **Smart Image Integration**: Fetches relevant images from Unsplash based on slide content
-- 🎤 **AI Voice Narration**: Multi-language voice generation with Sarvam AI (Indian TTS)
-- 📊 **Intelligent Slide Generation**: AI creates structured presentation content with text-based slides
-- ⏱️ **Perfect Audio Sync**: Per-slide audio generation ensures perfect synchronization
-- 🌐 **Multi-language Support**: English, Hindi, Kannada, Telugu, Tamil, and more Indian languages
+[![React](https://img.shields.io/badge/React-19.1-61DAFB?logo=react)](https://reactjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-## Architecture
+### 👨‍💻 Built by
+
+<table>
+<tr>
+<td align="center">
+<a href="https://github.com/VPbanna123">
+<img src="https://github.com/VPbanna123.png" width="80px;" alt="Vijaypal Singh Rathore"/><br />
+<b>Vijaypal Singh Rathore</b>
+</a><br />
+<a href="https://github.com/VPbanna123">GitHub</a> • 
+<a href="https://www.linkedin.com/in/vijaypal-singh-rathore-331106268">LinkedIn</a>
+</td>
+<td align="center">
+<a href="https://github.com/Kamal-Nayan-Kumar">
+<img src="https://github.com/Kamal-Nayan-Kumar.png" width="80px;" alt="Kamal Nayan Kumar"/><br />
+<b>Kamal Nayan Kumar</b>
+</a><br />
+<a href="https://github.com/Kamal-Nayan-Kumar">GitHub</a> • 
+<a href="https://www.linkedin.com/in/nayan90k">LinkedIn</a>
+</td>
+</tr>
+</table>
+
+*🎓 DSAI Students @ IIIT Dharwad*
+
+
+</div>
+
+---
+
+## ✨ Features
+
+- 🤖 **AI-Powered Content:** Uses **Gemini AI** to generate structured presentation content
+- 🎤 **Multi-Language TTS:** Voice narration (English, Hindi, Kannada, Telugu) via **Sarvam AI**
+- 🎨 **Smart Visuals:** Fetches images from **Unsplash** or generates animations via **Manim**
+- 🎞️ **Professional Videos:** Uses **FFmpeg** for synchronized video composition
+- 📊 **Interactive Timeline:** Navigate video slides easily
+- 🎯 **Mutual Exclusivity:** Each slide is either **text**, **image**, or **animation** (never both)
+- 📥 **Download Ready:** Export final video as MP4
+
+---
+
+## 🏗️ Architecture Overview
 
 ```
-combined_system/
-├── backend/          # Python FastAPI backend
-│   ├── generators/   # Content, script, animation, voice generators
-│   ├── utils/        # Video rendering and composition
-│   ├── outputs/      # Generated files
-│   └── app.py        # Main API server
-└── frontend/         # React frontend
-    └── src/
-        └── components/  # UI components
+Frontend (React) → API (FastAPI) → Backend Pipeline → External APIs → Output
+                                         ↓
+                    Gemini AI → Sarvam AI → Unsplash → Manim → FFmpeg → Final MP4
 ```
 
-## Setup
+**Flow:**  
+`User Input → Content → Script → Audio → Visuals → Video Composition → Streaming`
 
-### Backend Setup
+---
 
-1. **Navigate to backend directory**:
-   ```bash
-   cd combined_system/backend
-   ```
+## 📋 Prerequisites
 
-2. **Create virtual environment**:
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Linux/Mac
-   # or
-   venv\Scripts\activate  # On Windows
-   ```
+- **Python:** 3.10 or higher
+- **Node.js:** 18.0 or higher
+- **FFmpeg:** Installed and added to PATH
+- **Manim:** Community Edition
+- **API Keys:**
+  - Google Gemini
+  - Sarvam AI
+  - Unsplash
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+---
 
-4. **Install Manim dependencies**:
-   ```bash
-   # On Ubuntu/Debian
-   sudo apt-get update
-   sudo apt-get install -y ffmpeg libcairo2-dev libpango1.0-dev texlive texlive-latex-extra
-   
-   # On macOS
-   brew install ffmpeg cairo pango
-   brew install --cask mactex
-   ```
+## 🚀 Installation (Step-by-Step)
 
-5. **Create `.env` file**:
-   ```bash
-   cp .env.example .env
-   ```
+### 1️⃣ Clone Repository
 
-6. **Add your API keys to `.env`**:
-   ```
-   GEMINI_API_KEY=your_gemini_api_key_here
-   SARVAM_API_KEY=your_sarvam_api_key_here
-   UNSPLASH_ACCESS_KEY=your_unsplash_access_key_here
-   ```
+```
+git clone https://github.com/yourusername/ai-video-presentation-generator.git
+cd ai-video-presentation-generator
+```
 
-7. **Run the backend**:
-   ```bash
-   python app.py
-   ```
-   Backend will run on `http://localhost:8000`
+### 2️⃣ System Dependencies
 
-### Frontend Setup
+#### Install FFmpeg
 
-1. **Navigate to frontend directory**:
-   ```bash
-   cd combined_system/frontend
-   ```
+**macOS:**
+```
+brew install ffmpeg
+```
 
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+**Ubuntu/Debian:**
+```
+sudo apt-get update
+sudo apt-get install -y ffmpeg
+```
 
-3. **Run the frontend**:
-   ```bash
-   npm run dev
-   ```
-   Frontend will run on `http://localhost:5173`
+**Windows:**
+- Download from: [https://ffmpeg.org/download.html](https://ffmpeg.org/download.html)
+- Add `ffmpeg/bin` to your PATH
 
-## API Keys Required
+#### Install Manim
 
-- **Google Gemini API**: Get from [Google AI Studio](https://makersuite.google.com/app/apikey)
-- **Sarvam AI API**: Get from [Sarvam AI](https://www.sarvam.ai/) - Indian language TTS service
-- **Unsplash API**: Get from [Unsplash Developers](https://unsplash.com/developers)
+```
+pip install manim
+```
 
-## Usage
+### 3️⃣ Backend Setup
 
-1. Open `http://localhost:5173` in your browser
-2. Enter a topic/prompt (e.g., "Explain Newton's Second Law of Motion")
-3. Configure:
-   - Number of slides (3-10)
-   - Language (English, Hindi, Kannada, Telugu)
-   - Tone (Formal, Casual, Storytelling)
-4. Click "Generate Video Presentation"
-5. Wait for the generation process (may take 2-5 minutes)
-6. View and download your generated video
+```
+cd backend
+python -m venv venv
+```
 
-## How It Works
+**Activate virtual environment:**
 
-1. **Content Generation**: AI analyzes the prompt and creates structured slide content (mostly text-based, with selective animations/images)
-2. **Script Generation**: Generates narration scripts with estimated timestamps for each slide
-3. **Voice Generation (Per Slide)**: Creates audio narration for each slide separately in the selected language
-4. **Duration Measurement**: Measures actual audio duration for each slide
-5. **Timestamp Correction**: Updates slide timestamps based on actual audio durations for perfect sync
-6. **Animation Generation**: For slides truly needing dynamic content (1-2 per presentation), generates and renders Manim animations
-7. **Image Fetching**: Downloads relevant images from Unsplash for slides needing visual context
-8. **Slide Rendering**: Creates PPT-style text slides for content that doesn't need animations/images
-9. **Video Composition**: Combines all elements (text slides, animations, images, audio) into final video with perfect synchronization
+**macOS/Linux:**
+```
+source venv/bin/activate
+```
 
-## Technical Stack
+**Windows (PowerShell):**
+```
+venv\Scripts\Activate.ps1
+```
 
-### Backend
-- FastAPI (Web framework)
-- Google Gemini 2.0 (AI content generation)
-- Sarvam AI (Indian language voice synthesis - bulbul:v2 model)
-- Manim Community Edition (Animation rendering)
-- MoviePy (Video composition)
-- Pillow (Slide image generation)
-- Pydantic (Data validation)
+**Windows (CMD):**
+```
+venv\Scripts\activate
+```
 
-### Frontend
-- React 19
-- Vite (Build tool)
-- Tailwind CSS (Styling)
-- Axios (HTTP client)
+**Install dependencies:**
+```
+pip install -r requirements.txt
+```
 
-## Project Structure
+**Create `.env` file inside `backend/`:**
 
-### Backend Generators
-- `content_generator.py`: Generates presentation structure with selective animation/image needs
-- `script_generator.py`: Creates narration scripts with estimated timestamps
-- `manim_generator.py`: Generates Manim animation code (sparingly used)
-- `voice_generator.py`: Synthesizes voice narration using Sarvam AI, generates per-slide audio
-- `image_fetcher.py`: Fetches relevant images from Unsplash
+```
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-1.5-pro
 
-### Backend Utils
-- `slide_renderer.py`: Creates PPT-style text slides as images
-- `video_renderer.py`: Renders Manim animations to video
-- `video_composer.py`: Combines all media into final video with perfect audio sync
+SARVAM_API_KEY=your_sarvam_api_key_here
+SARVAM_TTS_URL=https://api.sarvam.ai/text-to-speech
+SARVAM_MODEL=bulbul:v1
 
-## Troubleshooting
+UNSPLASH_ACCESS_KEY=your_unsplash_access_key_here
 
-### Backend Issues
+HOST=0.0.0.0
+PORT=8000
+```
 
-**Manim rendering fails**:
-- Ensure all Manim dependencies are installed
-- Check if LaTeX is properly installed (`which latex`)
-- Try running a simple manim example first
+**Get API Keys:**
+- **Gemini:** [Google AI Studio](https://aistudio.google.com/app/apikey)
+- **Sarvam AI:** [Sarvam Console](https://www.sarvam.ai/)
+- **Unsplash:** [Unsplash Developers](https://unsplash.com/developers)
 
-**API errors**:
-- Verify all API keys are correctly set in `.env`
-- Check API quotas and limits
-- Ensure internet connectivity
+**Run backend:**
+```
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
 
-**Import errors**:
-- Activate virtual environment
-- Reinstall requirements: `pip install -r requirements.txt --force-reinstall`
+✅ Backend runs on `http://localhost:8000`
 
-### Frontend Issues
+### 4️⃣ Frontend Setup
 
-**Connection refused**:
-- Ensure backend is running on port 8000
-- Check CORS settings in backend
+```
+cd ../frontend
+npm install
+npm run dev
+```
 
-**Build errors**:
-- Clear node_modules: `rm -rf node_modules && npm install`
-- Clear cache: `npm run dev -- --force`
+✅ Frontend runs on `http://localhost:5173`
 
-## Future Enhancements
+---
 
-- [ ] Real-time progress tracking with WebSockets
-- [ ] Video editing capabilities
+## 🧠 Usage
+
+1. **Open browser** → `http://localhost:5173`
+2. **Enter details:**
+   - Topic (e.g., "Explain Newton's Laws of Motion")
+   - Number of slides (3–10)
+   - Language (English/Hindi/Kannada/Telugu)
+   - Tone (Formal/Casual/Enthusiastic)
+3. **Click Generate**
+4. **Wait (2–5 mins)** → Watch, navigate slides, and Download MP4
+
+---
+
+## 📁 Project Structure
+
+```
+ai-video-presentation-generator/
+├── frontend/                 # React app
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Home.jsx
+│   │   │   ├── VideoPlayer.jsx
+│   │   │   └── CanvasAnimation.jsx
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   ├── package.json
+│   └── vite.config.js
+│
+├── backend/                  # FastAPI backend
+│   ├── generators/
+│   │   ├── content_generator.py
+│   │   ├── script_generator.py
+│   │   ├── voice_generator.py
+│   │   ├── manim_generator.py
+│   │   └── image_fetcher.py
+│   ├── utils/
+│   │   ├── video_renderer.py
+│   │   ├── slide_renderer.py
+│   │   └── video_composer.py
+│   ├── main.py
+│   ├── config.py
+│   ├── requirements.txt
+│   └── .env
+│
+├── output/                   # Generated files (ignored in .git)
+│   ├── slides/
+│   ├── scripts/
+│   ├── audio/
+│   ├── images/
+│   ├── manim_code/
+│   ├── manim_output/
+│   └── final/
+│
+├── docs/
+│   └── demo.mp4
+│
+└── README.md
+```
+
+---
+
+## 🔧 Configuration (Backend)
+
+**`config.py`:**
+
+```
+import os
+from pathlib import Path
+
+class Config:
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
+    SARVAM_API_KEY = os.getenv("SARVAM_API_KEY")
+    SARVAM_TTS_URL = os.getenv("SARVAM_TTS_URL")
+    SARVAM_MODEL = os.getenv("SARVAM_MODEL", "bulbul:v1")
+    UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY")
+
+    OUTPUT_DIR = Path(__file__).parent / "output"
+    SLIDES_DIR = OUTPUT_DIR / "slides"
+    SCRIPTS_DIR = OUTPUT_DIR / "scripts"
+    AUDIO_DIR = OUTPUT_DIR / "audio"
+    IMAGES_DIR = OUTPUT_DIR / "images"
+    MANIM_CODE_DIR = OUTPUT_DIR / "manim_code"
+    MANIM_OUTPUT_DIR = OUTPUT_DIR / "manim_output"
+    FINAL_DIR = OUTPUT_DIR / "final"
+```
+
+---
+
+## 🎯 API Endpoints
+
+### `POST /api/generate`
+
+Generate a video presentation.
+
+**Request:**
+```
+{
+  "topic": "Explain Newton's Third Law",
+  "num_slides": 5,
+  "language": "english",
+  "tone": "formal"
+}
+```
+
+**Response:**
+```
+{
+  "status": "success",
+  "message": "Video generated successfully",
+  "video_filename": "video.mp4",
+  "video_path": "/output/final/video.mp4"
+}
+```
+
+### `GET /api/video/{filename}`
+
+Stream generated video with range request support.
+
+### `GET /api/status/{generation_id}`
+
+Get generation progress.
+
+---
+
+## 🛠️ Troubleshooting
+
+### FFmpeg not found
+
+```
+ffmpeg -version
+```
+
+If missing, install (see installation section).
+
+### Manim rendering fails
+
+```
+manim --version
+```
+
+Reinstall if necessary:
+```
+pip install manim
+```
+
+### API Key errors
+
+- Ensure `.env` is in `backend/`
+- Restart backend after editing keys
+
+### CORS errors
+
+Update `allow_origins` in `backend/main.py`:
+
+```
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```
+
+---
+
+## 🧑‍💻 Development
+
+Run with hot reload:
+
+```
+# Backend
+cd backend
+uvicorn main:app --reload
+
+# Frontend
+cd frontend
+npm run dev
+```
+
+**Follow:**
+- Python style: PEP 8 (`black` formatter)
+- JS/React: ESLint standard
+
+---
+
+## 🤝 Contributing
+
+1. Fork repo
+2. Create branch: `git checkout -b feature/your-feature`
+3. Commit & push changes
+4. Open Pull Request
+
+---
+
+## 🗺️ Roadmap
+
 - [ ] More animation templates
-- [ ] Custom voice training
-- [ ] Slide templates and themes
-- [ ] Export to multiple formats (MP4, PPT, PDF)
-- [ ] Collaborative editing
-- [ ] Cloud storage integration
+- [ ] Support Tamil & Bengali
+- [ ] Real-time progress updates (SSE)
+- [ ] Custom slide templates
+- [ ] Cloud deployment guide
+- [ ] Docker & CI/CD
 
-## License
+---
 
-MIT
+## 🙏 Acknowledgments
 
-## Contributors
+- **Google Gemini** for AI content
+- **Sarvam AI** for multilingual TTS
+- **Unsplash** for visuals
+- **Manim Community** for animations
+- **FastAPI** & **React** for framework support
 
-Built by combining manim_video and vp projects into a unified system.
+---
+
+
+
+**Project Maintainer:** 
+-
+Vijaypal Singh Rathore
+- 📂 **GitHub:** [@Vpbanna123](https://github.com/VPbanna123)
+
+Kamal Nayan Kumar
+- 📂 **GitHub:** [@KAMAL NAYAN](https://github.com/Kamal-Nayan-Kumar)
+
+---
+
+<div align="center">
+
+**⭐ Star this repo if you find it helpful!**
+
+Made with ❤️ by VPbanna
+
+</div>
+```
+
+***
+

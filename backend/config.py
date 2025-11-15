@@ -26,7 +26,7 @@ class Config:
         dir_path.mkdir(parents=True, exist_ok=True)
     
     # Models
-    GEMINI_MODEL = "gemini-2.0-flash-exp"
+    GEMINI_MODEL = "gemini-2.5-flash"
     
     # Manim settings
     MANIM_QUALITY = "m"  # l=low, m=medium, h=high
