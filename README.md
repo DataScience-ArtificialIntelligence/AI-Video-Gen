@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🎬 AI-Lecture-Generator
+# AI-Powered Video Presentation Generator: A Multi-Modal Content Synthesis Framework
 
 **Transform any topic into an engaging video presentation with AI-powered content, narration, and visuals.**
 
