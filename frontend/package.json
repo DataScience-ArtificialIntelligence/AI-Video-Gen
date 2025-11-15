@@ -10,13 +10,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@hello-pangea/dnd": "^18.0.1",
+=======
+>>>>>>> 73529f5ab1bf7cdfe0e3f3b1627debd52ecd04fb
     "@tailwindcss/vite": "^4.1.14",
     "axios": "^1.12.2",
     "gif.js": "^0.2.0",
     "lucide-react": "^0.545.0",
     "pptxgenjs": "^4.0.1",
     "react": "^19.1.1",
+<<<<<<< HEAD
+=======
+    "react-beautiful-dnd": "^13.1.1",
+>>>>>>> 73529f5ab1bf7cdfe0e3f3b1627debd52ecd04fb
     "react-dom": "^19.1.1"
   },
   "devDependencies": {
