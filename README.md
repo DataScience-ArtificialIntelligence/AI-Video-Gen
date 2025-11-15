@@ -13,22 +13,12 @@
 
 <table>
 <tr>
-<td align="center">
-<a href="https://github.com/VPbanna123">
-<img src="https://github.com/VPbanna123.png" width="80px;" alt="Vijaypal Singh Rathore"/><br />
-<b>Vijaypal Singh Rathore</b>
-</a><br />
-<a href="https://github.com/VPbanna123">GitHub</a> • 
-<a href="https://www.linkedin.com/in/vijaypal-singh-rathore-331106268">LinkedIn</a>
-</td>
-<td align="center">
-<a href="https://github.com/Kamal-Nayan-Kumar">
-<img src="https://github.com/Kamal-Nayan-Kumar.png" width="80px;" alt="Kamal Nayan Kumar"/><br />
-<b>Kamal Nayan Kumar</b>
-</a><br />
-<a href="https://github.com/Kamal-Nayan-Kumar">GitHub</a> • 
-<a href="https://www.linkedin.com/in/nayan90k">LinkedIn</a>
-</td>
+<td align="center"><b>Kamal Nayan Kumar</b><br/>Roll No: 23BDS026</td>
+<td align="center"><b>Vijaypal Singh Rathore</b><br/>Roll No: 23BDS067</td>
+</tr>
+<tr>
+<td align="center"><b>Rahul Patel</b><br/>Roll No: 23BDS047</td>
+<td align="center"><b>Om Pandey</b><br/>Roll No: 23BDS40</td>
 </tr>
 </table>
 
