@@ -1,13 +1,13 @@
 <div align="center">
 
-# 🎬 AI Video Presentation Generator
+# 🎬 AI-Lecture-Generator
 
 **Transform any topic into an engaging video presentation with AI-powered content, narration, and visuals.**
 
 [![React](https://img.shields.io/badge/React-19.1-61DAFB?logo=react)](https://reactjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python)](https://www.python.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 
 ### 👨‍💻 Built by
 
@@ -379,7 +379,7 @@ npm run dev
 ## 🗺️ Roadmap
 
 - [ ] More animation templates
-- [ ] Support Tamil & Bengali
+- [ ] Multilingual
 - [ ] Real-time progress updates (SSE)
 - [ ] Custom slide templates
 - [ ] Cloud deployment guide
