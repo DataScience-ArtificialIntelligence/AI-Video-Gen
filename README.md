@@ -23,17 +23,7 @@
 
 ---
 
-## ✨ Features
 
-- 🤖 **AI-Powered Content Generation** using Gemini
-- 🎤 **Multi-Language Voice Generation** via Sarvam AI  
-- 🎨 **Smart Visuals** using Unsplash or Manim animations  
-- 🎞️ Professional video output using **FFmpeg**
-- 📊 **Timeline + Slide Navigation**
-- 🎯 Each slide is **text OR image OR animation**
-- 📥 Export final MP4 video
-
----
 
 ## 📁 Folder Structure
 
@@ -111,8 +101,8 @@ AI-VIDEO-GEN/
 ### 1️⃣ Clone the Repository
 
 ```
-git clone https://github.com/yourusername/ai-lecture-generator.git
-cd ai-lecture-generator
+git clone https://github.com/Kamal-Nayan-Kumar/AI-Video-Gen
+cd AI-Video-Gen
 ```
 
 ---
@@ -174,13 +164,7 @@ PORT=8000
 ### 7️⃣ Start Backend
 
 ```
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
-Backend runs at:
-
-```
-http://localhost:8000
+python app.py
 ```
 
 ---
@@ -198,6 +182,17 @@ Frontend runs at:
 ```
 http://localhost:5173
 ```
+
+---
+## ✨ Features
+
+- 🤖 **AI-Powered Content Generation** using Gemini
+- 🎤 **Multi-Language Voice Generation** via Sarvam AI  
+- 🎨 **Smart Visuals** using Unsplash or Manim animations  
+- 🎞️ Professional video output using **FFmpeg**
+- 📊 **Timeline + Slide Navigation**
+- 🎯 Each slide is **text OR image OR animation**
+- 📥 Export final MP4 video
 
 ---
 
@@ -219,20 +214,5 @@ http://localhost:5173
 
 ---
 
-## 🛠️ Troubleshooting
 
-### ❌ FFmpeg not working  
-Add `ffmpeg/bin` to PATH and restart terminal.
-
-### ❌ Manim error  
-Reinstall:
-
-```
-pip install manim
-```
-
-### ❌ CORS errors  
-Set your correct frontend URL in backend CORS settings.
-
----
 
