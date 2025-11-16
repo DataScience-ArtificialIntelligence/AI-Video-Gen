@@ -85,7 +85,6 @@ frontend/.vite/
 # Manim cache
 media/
 manim/
-*.mp4
 *.png
 
 # FFmpeg temporary files
