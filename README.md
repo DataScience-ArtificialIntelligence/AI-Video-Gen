@@ -1,10 +1,13 @@
 <div align="center">
 
-# AI-Powered Video Presentation Generator: A Multi-Modal Content Synthesis Framework
+# AI-Powered Video Presentation Generator: A Multi-Modal Content Synthesis Framework
 
 **Transform any topic into an engaging video presentation with AI-powered content, narration, and visuals.**
 
+### 🎥 [Watch Demo Video](https://youtu.be/h0P5-TS-aU0)
+
 </div>
+
 
 ---
 
@@ -60,8 +63,6 @@ AI-VIDEO-GEN/
 │   ├── MANIM_CODE_GUIDE.md
 │   ├── app.py (FastAPI entry)
 │   └── main.py
-│
-├── express/                 # Node backend (optional)
 │
 ├── frontend/
 │   ├── public/
